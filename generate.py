@@ -73,7 +73,7 @@ else:
 js = path.join(jsdir,path.split(reader)[1])
 shutil.copyfile(reader,js)
 
-homedir = "index.html"
+homefile = path.join(directory,"index.html")
 chaplist = []
 
 for i in range(len(chapters)):
@@ -81,9 +81,9 @@ for i in range(len(chapters)):
     chdir = path.join(directory,chapters[i])
     pages = [ path.relpath(path.join(chdir,f),path.split(indexes[i])[0]) for f in os.listdir(chdir) if (path.isfile(path.join(chdir,f)) and not f.endswith("chapters.json") and not f.endswith("index.html"))]
     if sys.version_info < (3,0):
-        chap = "<li><a href=\"%s\">%s</a></li>" % (chapters[i],chapters[i])
+        chap = "<li><a href=\"%s\">%s</a></li>" % (path.relpath(indexes[i],path.split(homefile)[0]),chapters[i])
     else:
-        chap = "<li><a href=\"{}\">{}</a></li>".format(chapters[i],chapters[i])
+        chap = "<li><a href=\"{}\">{}</a></li>".format(path.relpath(indexes[i],path.split(homefile)[0]),chapters[i])
     chaplist.append(chap)
     #generate json
     data = {}
@@ -109,7 +109,7 @@ for i in range(len(chapters)):
         html = html.replace("$JS$",path.relpath(js,path.split(indexes[i])[0]))
         html = html.replace("$HIDDEN$", "hidden=\"true\"" if page else "")
         html = html.replace("$CHJSON$",path.relpath(chjson[i],path.split(indexes[i])[0]))
-        html = html.replace("$HOME$","../")
+        html = html.replace("$HOME$",path.relpath(homefile,path.split(indexes[i])[0]))
         htmlfile.write(html)
-with open(path.join(directory,homedir),'w') as homefile:
+with open(homefile,'w') as homefile:
     homefile.write(hometemplate.replace("$CHAPLIST$","".join(chaplist)))
