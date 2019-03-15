@@ -9,7 +9,7 @@ parser = argparse.ArgumentParser(description='Generates a static manga site from
 parser.add_argument('directory',nargs=1,help="The directory containing all the chapter folders")
 parser.add_argument('--page','-p',default=False,action='store_const',const=True,help="Uses pagination such that each page generates a new url")
 parser.add_argument('--jsdir',help="The relative path to directory for the js file relative to the main directory")
-parser.add_argument('--indexdir',help="The relative path to directory for the index fiels relative to the main directory")
+parser.add_argument('--indexdir',help="The relative path to directory for the index fields relative to the main directory")
 parser.add_argument('--index',choices=['image','chapters','numbered'],default='image',help="Determines how the site pages are generated.")
 parser.add_argument('--home',default="../",help="The home directory containing an overview of all chapters")
 args = parser.parse_args()
