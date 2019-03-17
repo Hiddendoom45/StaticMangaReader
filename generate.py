@@ -4,6 +4,7 @@ import os.path as path
 import json
 import shutil
 import sys
+import io
 
 parser = argparse.ArgumentParser(description='Generates a static manga site from some images')
 parser.add_argument('directory',nargs=1,help="The directory containing all the chapter folders")
@@ -11,7 +12,8 @@ parser.add_argument('--page','-p',default=False,action='store_const',const=True,
 parser.add_argument('--jsdir',help="The relative path to directory for the js file relative to the main directory")
 parser.add_argument('--indexdir',help="The relative path to directory for the index fields relative to the main directory")
 parser.add_argument('--index',choices=['image','chapters','numbered'],default='image',help="Determines how the site pages are generated.")
-parser.add_argument('--home',default="../",help="The home directory containing an overview of all chapters")
+parser.add_argument('--home',default="",help="The home directory containing an overview of all chapters")
+parser.add_argument('--nohome',default=False,action='store_const',const=True,help="Prevents creation of home page for the manga")
 args = parser.parse_args()
 directory = args.directory[0]
 
@@ -73,7 +75,7 @@ else:
 js = path.join(jsdir,path.split(reader)[1])
 shutil.copyfile(reader,js)
 
-homefile = path.join(directory,"index.html")
+homefile = path.join(directory,args.home,"index.html" if not args.nohome else "")
 chaplist = []
 
 for i in range(len(chapters)):
@@ -101,7 +103,7 @@ for i in range(len(chapters)):
     with open(path.join(path.split(indexes[i])[0],path.relpath(chjson[i],path.split(indexes[i])[0])),"w") as jsonfile:
         json.dump(data,jsonfile)
     #generate html
-    with open(indexes[i],"w") as htmlfile:
+    with io.open(indexes[i],"w",encoding='utf-8') as htmlfile:
         html=htmltemplate
         #replace various part of template with generated strings
         html = html.replace("$TITLE$",chapters[i])
@@ -110,6 +112,13 @@ for i in range(len(chapters)):
         html = html.replace("$HIDDEN$", "hidden=\"true\"" if page else "")
         html = html.replace("$CHJSON$",path.relpath(chjson[i],path.split(indexes[i])[0]))
         html = html.replace("$HOME$",path.relpath(homefile,path.split(indexes[i])[0]))
-        htmlfile.write(html)
-with open(homefile,'w') as homefile:
-    homefile.write(hometemplate.replace("$CHAPLIST$","".join(chaplist)))
+        if sys.version_info < (3,0):
+            htmlfile.write(unicode(html,'utf-8'))
+        else:
+            htmlfile.write(html)
+if not args.nohome:
+    with io.open(homefile,'w',encoding='utf-8') as homefile:
+        if sys.version_info < (3,0):
+            homefile.write(unicode(hometemplate.replace("$CHAPLIST$","".join(chaplist)).replace("$TITLE$","Chapter Overview"),'utf-8'))
+        else:
+            homefile.write(hometemplate.replace("$CHAPLIST$","".join(chaplist)).replace("$TITLE$","Chapter Overview"))
