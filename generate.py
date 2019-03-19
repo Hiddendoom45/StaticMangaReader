@@ -22,8 +22,15 @@ def uniwrite(file,str):
         file.write(unicode(str,'utf-8'))
     else:
         file.write(str)
+def smkdirsf(file):
+    smkdirs(path.split(file)[0])
 
-
+def smkdirs(dir):
+    if sys.version_info < (3,0):
+        if not path.exists(dir):
+            os.makedirs(dir)
+    else:
+        os.makedirs(jsdir,exist_ok=True)
 #setup parser and parse arguments
 parser = argparse.ArgumentParser(description='Generates a static manga site from some images')
 parser.add_argument('directory',nargs=1,help="The directory containing all the chapter folders")
@@ -94,11 +101,7 @@ if args.jsdir is not None:
 else:
     jsdir = directory
 
-if sys.version_info < (3,0):
-    if not path.exists(jsdir):
-        os.makedirs(jsdir)
-else:
-    os.makedirs(jsdir,exist_ok=True)
+smkdirs(jsdir)
 js = path.join(jsdir,path.split(reader)[1])
 if args.clean:
     sremove(js)
@@ -130,15 +133,18 @@ for i in range(len(chapters)):
         data['previouschapter'] = "#"
     
     data['pages'] = [ {"page":p} for p in pages ]
+    jsfp = path.join(path.split(indexes[i])[0],path.relpath(chjson[i],path.split(indexes[i])[0]))
+    smkdirsf(jsfp)
     if args.clean:
-        sremove(path.join(path.split(indexes[i])[0],path.relpath(chjson[i],path.split(indexes[i])[0])))
+        sremove(jsfp)
     else:
-        with open(path.join(path.split(indexes[i])[0],path.relpath(chjson[i],path.split(indexes[i])[0])),"w") as jsonfile:
+        with open(jsfp,"w") as jsonfile:
             uniwrite(jsonfile,json.dumps(data))
     #generate html
     if args.clean:
         sremove(indexes[i])
     else:
+        smkdirsf(indexes[i])
         with io.open(indexes[i],"w",encoding='utf-8') as htmlfile:
             html=htmltemplate
             #replace various part of template with generated strings
@@ -154,6 +160,7 @@ if not args.nohome:
     if args.clean:
         sremove(homefile)
     else:
+        smkdirsf(homefile)
         with io.open(homefile,'w',encoding='utf-8') as homefile:
             home = hometemplate
             home = home.replace("$CHAPLIST$","".join(chaplist))
