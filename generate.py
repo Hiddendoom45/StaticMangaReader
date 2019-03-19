@@ -117,24 +117,24 @@ for i in range(len(chapters)):
         data['previouschapter'] = "#"
     
     data['pages'] = [ {"page":p} for p in pages ]
-    with open(path.join(path.split(indexes[i])[0],path.relpath(chjson[i],path.split(indexes[i])[0])),"w") as jsonfile:
-        if args.clean:
-            sremove(path.join(path.split(indexes[i])[0],path.relpath(chjson[i],path.split(indexes[i])[0])))
-        else:
+    if args.clean:
+        sremove(path.join(path.split(indexes[i])[0],path.relpath(chjson[i],path.split(indexes[i])[0])))
+    else:
+        with open(path.join(path.split(indexes[i])[0],path.relpath(chjson[i],path.split(indexes[i])[0])),"w") as jsonfile:
             json.dump(data,jsonfile)
     #generate html
-    with io.open(indexes[i],"w",encoding='utf-8') as htmlfile:
-        html=htmltemplate
-        #replace various part of template with generated strings
-        html = html.replace("$TITLE$",chapters[i])
-        html = html.replace("$IMAGE$",data['pages'][0]['page'])
-        html = html.replace("$JS$",path.relpath(js,path.split(indexes[i])[0]))
-        html = html.replace("$HIDDEN$", "hidden=\"true\"" if page else "")
-        html = html.replace("$CHJSON$",path.relpath(chjson[i],path.split(indexes[i])[0]))
-        html = html.replace("$HOME$",path.relpath(homefile,path.split(indexes[i])[0]))
-        if args.clean:
-            sremove(indexes[i])
-        else:
+    if args.clean:
+        sremove(indexes[i])
+    else:
+        with io.open(indexes[i],"w",encoding='utf-8') as htmlfile:
+            html=htmltemplate
+            #replace various part of template with generated strings
+            html = html.replace("$TITLE$",chapters[i])
+            html = html.replace("$IMAGE$",data['pages'][0]['page'])
+            html = html.replace("$JS$",path.relpath(js,path.split(indexes[i])[0]))
+            html = html.replace("$HIDDEN$", "hidden=\"true\"" if page else "")
+            html = html.replace("$CHJSON$",path.relpath(chjson[i],path.split(indexes[i])[0]))
+            html = html.replace("$HOME$",path.relpath(homefile,path.split(indexes[i])[0]))    
             if sys.version_info < (3,0):
                 htmlfile.write(unicode(html,'utf-8'))
             else:
