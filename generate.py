@@ -6,13 +6,25 @@ import shutil
 import sys
 import io
 
-
+#helper functions
+def dremove(dir):
+    if len(os.listdir(dir)) == 0:
+        sremove(file)
 def sremove(file):
     try:
         os.remove(file)
+        dremove(path.spit(file)[0])
     except OSError:
         pass 
+#file opened with encode unicode
+def uniwrite(file,str):
+    if sys.version_info < (3,0):
+        file.write(unicode(str,'utf-8'))
+    else:
+        file.write(str)
 
+
+#setup parser and parse arguments
 parser = argparse.ArgumentParser(description='Generates a static manga site from some images')
 parser.add_argument('directory',nargs=1,help="The directory containing all the chapter folders")
 parser.add_argument('--page','-p',default=False,action='store_const',const=True,help="Uses pagination such that each page generates a new url")
@@ -26,7 +38,7 @@ parser.add_argument('--chlist',help="File containing the chapters")
 args = parser.parse_args()
 directory = args.directory[0]
 
-
+#determine generators
 chdirectchild = lambda dir : [f for f in os.listdir(dir) if path.isdir(path.join(dir,f))]
 chfromlist = lambda dir: [ path.join(directory,f) if not f.startswith('/') else f for f in args.chlist.read().splitlines()]
 if args.chlist is not None:
@@ -64,12 +76,13 @@ indexes= generator[1](directory,chapters)
 #json files
 chjson= generator[2](directory,chapters,indexes)
 
-page = args.page
-
 htmltemplatenginx = "<!DOCTYPE html><html><head><link rel=\"preload\" href=\"$JS$\" as=\"script\"><title>$TITLE$</title></head><body onload=\"loadJSON()\"><script>chjson=\"$CHJSON$\"</script><script type=\"text/javascript\" src=\"$JS$\"></script><img id=\"mainimage\" href=\"#\" style=\"width:100%\"src=\"$IMAGE$\" onclick=\"nextPage()\" loadeddata=\"scrollTop()\" $HIDDEN$></img><div id=\"pagination\" style=\"position: relative\"><button style=\"float:left;width:20%;height:3em\"type=\"button\" onclick=\"previousPage()\">&lt;==</button><span style=\"margin:auto; position:absolute;left: 30%;width: 40%;text-align: center;\"> <input type=\"number\" name=\"pageField\" id=\"pageField\" style=\"text-align:left;width: 4em\" onchange=\"setpage(value-1)\" value=\"1\">/ <span id=\"total\"> </span></span><span style=\"margin:auto; position:absolute;left: 30%;width: 40%;text-align: center;top: 1em\"><a href=\"$HOME$\">$TITLE$</a></span><button style=\"float:right;width:20%;height:3em\" type=\"button\" onclick=\"nextPage()\">==&gt;</button></div></body></html>"
 
 htmltemplate = htmltemplatenginx
 hometemplate = "<!DOCTYPE html><html><head> <meta charset=\"utf-8\"/> <title>$TITLE$</title></head><body> <ul> $CHAPLIST$ </ul></body></html>"
+
+#whether to use paged reader or non-paged reader
+page = args.page
 #copy js
 if page:
     reader = "pagedreader.js"
@@ -121,7 +134,7 @@ for i in range(len(chapters)):
         sremove(path.join(path.split(indexes[i])[0],path.relpath(chjson[i],path.split(indexes[i])[0])))
     else:
         with open(path.join(path.split(indexes[i])[0],path.relpath(chjson[i],path.split(indexes[i])[0])),"w") as jsonfile:
-            json.dump(data,jsonfile)
+            uniwrite(jsonfile,json.dumps(data))
     #generate html
     if args.clean:
         sremove(indexes[i])
@@ -135,17 +148,14 @@ for i in range(len(chapters)):
             html = html.replace("$HIDDEN$", "hidden=\"true\"" if page else "")
             html = html.replace("$CHJSON$",path.relpath(chjson[i],path.split(indexes[i])[0]))
             html = html.replace("$HOME$",path.relpath(homefile,path.split(indexes[i])[0]))    
-            if sys.version_info < (3,0):
-                htmlfile.write(unicode(html,'utf-8'))
-            else:
-                htmlfile.write(html)
+            uniwrite(htmlfile,html)
 
 if not args.nohome:
     if args.clean:
         sremove(homefile)
     else:
         with io.open(homefile,'w',encoding='utf-8') as homefile:
-            if sys.version_info < (3,0):
-                homefile.write(unicode(hometemplate.replace("$CHAPLIST$","".join(chaplist)).replace("$TITLE$","Chapter Overview"),'utf-8'))
-            else:
-                homefile.write(hometemplate.replace("$CHAPLIST$","".join(chaplist)).replace("$TITLE$","Chapter Overview"))
+            home = hometemplate
+            home = home.replace("$CHAPLIST$","".join(chaplist))
+            home = home.replace("$TITLE$","Chapter Overview")
+            uniwrite(homefile,home)
