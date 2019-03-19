@@ -9,21 +9,22 @@ import io
 #helper functions
 def dremove(dir):
     if len(os.listdir(dir)) == 0:
-        sremove(file)
-def sremove(file):
+        os.rmdir(dir)
+        dremove(path.split(dir)[0])
+def sremove(f):
     try:
-        os.remove(file)
-        dremove(path.spit(file)[0])
+        os.remove(f)
+        dremove(path.split(f)[0])
     except OSError:
         pass 
 #file opened with encode unicode
-def uniwrite(file,str):
+def uniwrite(f,str):
     if sys.version_info < (3,0):
-        file.write(unicode(str,'utf-8'))
+        f.write(unicode(str,'utf-8'))
     else:
-        file.write(str)
-def smkdirsf(file):
-    smkdirs(path.split(file)[0])
+        f.write(str)
+def smkdirsf(f):
+    smkdirs(path.split(f)[0])
 
 def smkdirs(dir):
     if sys.version_info < (3,0):
