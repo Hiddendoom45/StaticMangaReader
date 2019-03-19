@@ -58,13 +58,13 @@ else:
 if args.indexdir is None:
     inddir = directory
 else:
-    inddir = path.join(directory,args.indexdir)
+    inddir = args.indexdir if path.isabs(args.indexdir) else path.join(directory,args.indexdir)
 if sys.version_info < (3,0):
     if not path.exists(inddir):
         os.makedirs(inddir)
 else:
     os.makedirs(inddir,exist_ok=True)
-indwithimg = lambda dir,ch : [ path.join(inddir,c,"index.html") for c in ch]
+indwithimg = lambda dir,ch : [path.join(inddir,c,"index.html") for c in ch]
 indseparate = lambda dir,ch : [path.join(inddir,c+".html") for c in ch]
 indnumbered = lambda dir,ch : [path.join(inddir,str(i+1)+".html") for i in range(len(ch))]
 
@@ -99,7 +99,7 @@ else:
     reader = "reader.js"
 reader = path.join(path.split(path.realpath(__file__))[0],reader)
 if args.jsdir is not None:
-    jsdir = path.join(directory,args.jsdir)
+    jsdir = args.jsdir if path.isabs(jsdir) else path.join(directory,args.jsdir)
 else:
     jsdir = directory
 
@@ -110,7 +110,7 @@ if args.clean:
 else:
     shutil.copyfile(reader,js)
 
-homefile = path.join(directory,args.home,"index.html" if not args.nohome else "")
+homefile = path.join( args.home if path.isabs(args.home) else path.join(directory,args.home),"index.html" if not args.nohome else "")
 chaplist = []
 
 for i in range(len(chapters)):

@@ -4,7 +4,7 @@ Used to Generate some basic html/javascript to read manga from a static website.
 
 ### Usage
 
-The main script is a python program that generates the pages needed to view the images of a downloaded manga. Compatible with both python2 and python3. 
+The main script is a python program that generates the pages needed to view the images of downloaded manga. Compatible with both python2 and python3. 
 
 basic format
 ```
@@ -105,7 +105,7 @@ Use pagedreader.js instead of reader.js which loads a new url for each page appe
 
 #### --jsdir
 
-Specifies the location to put the javascript file relative to the main directory.
+Specifies the location to put the javascript file. Paths are relative to the main directory
 
 i.e. to place the javascript file within a resources folder that is located within the parent of the chapter folder
 
@@ -115,7 +115,7 @@ python generate.py directory --jsdir ../res/js
 
 #### --indexdir
 
-Shifts the locations of the index files so their relative position to the specified directory is the same as their relative position to the main directory without specifying this. In most cases the index files will be placed directly in the folder with the exception of the default `--index image` generation. Relative paths are relative to the main directory
+Shifts the locations of the index files so their relative position to the specified directory is the same as their relative position to the main directory without specifying this. In most cases the index files will be placed directly in the folder with the exception of the default `--index image` generation. Paths are relative to the main directory.
 
 i.e. moving the index files to their parent with `python generate.py directory --indexdir ../`
 
