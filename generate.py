@@ -22,11 +22,17 @@ parser.add_argument('--index',choices=['image','chapters','numbered'],default='i
 parser.add_argument('--home',default="",help="The home directory containing an overview of all chapters")
 parser.add_argument('--nohome',default=False,action='store_const',const=True,help="Prevents creation of home page for the manga")
 parser.add_argument('--clean',default=False,action='store_const',const=True,help="Removes files that would've been generated with the given parameters")
+parser.add_argument('--chlist',help="File containing the chapters")
 args = parser.parse_args()
 directory = args.directory[0]
 
+
 chdirectchild = lambda dir : [f for f in os.listdir(dir) if path.isdir(path.join(dir,f))]
-chfromlist = lambda dir: [ f for f in file.read().splitlines()]
+chfromlist = lambda dir: [ path.join(directory,f) if not f.startswith('/') else f for f in args.chlist.read().splitlines()]
+if args.chlist is not None:
+    chgen = chfromlist
+else:
+    chgen = chdirectchild
 
 if args.indexdir is None:
     inddir = directory
@@ -46,11 +52,11 @@ jsonindexname = lambda dir,ch,ind : [ ".".join(i.split(".")[:-1])+".json" for i 
 
 #generators for each thing
 if args.index=='image':
-    generator = (chdirectchild,indwithimg,jsonwithindex)
+    generator = (chgen,indwithimg,jsonwithindex)
 elif args.index=='chapters':
-    generator = (chdirectchild,indseparate,jsonindexname)
+    generator = (chgen,indseparate,jsonindexname)
 elif args.index=='numbered':
-    generator = (chdirectchild,indnumbered,jsonindexname)
+    generator = (chgen,indnumbered,jsonindexname)
 # list of chapter directories
 chapters = generator[0](directory)
 #list of index files
@@ -103,12 +109,12 @@ for i in range(len(chapters)):
     if (i<len(chapters)-1):
          data['nextchapter'] = path.relpath(indexes[i+1],path.split(indexes[i])[0])
     else:
-        data['nextchapter'] = ""
+        data['nextchapter'] = "#"
     
     if (i>0):
         data['previouschapter'] = path.relpath(indexes[i-1],path.split(indexes[i])[0])
     else:
-        data['previouschapter'] = ""
+        data['previouschapter'] = "#"
     
     data['pages'] = [ {"page":p} for p in pages ]
     with open(path.join(path.split(indexes[i])[0],path.relpath(chjson[i],path.split(indexes[i])[0])),"w") as jsonfile:
