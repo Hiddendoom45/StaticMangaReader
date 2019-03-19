@@ -156,7 +156,7 @@ for i in range(len(chapters)):
             html = html.replace("$JS$",path.relpath(js,path.split(indexes[i])[0]))
             html = html.replace("$HIDDEN$", "hidden=\"true\"" if page else "")
             html = html.replace("$CUSTOMJS$",("chjson=\""+path.relpath(chjson[i],path.split(indexes[i])[0])+"\"" if args.usejson else "data="+json.dumps(data)))
-            html = html.replace("$HOME$",path.relpath(homefile,path.split(indexes[i])[0]))    
+            html = html.replace("$HOME$",path.relpath(homefile,path.split(indexes[i])[0]) if args.nohome else homefile)    
             uniwrite(htmlfile,html)
 
 if not args.nohome:

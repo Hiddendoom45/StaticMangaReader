@@ -1,11 +1,6 @@
 # StaticMangaReader
 
-Used to Generate some basic html/javascript to read manga from a static website. The resulting files can be used in any sort of static web hosting provider.
-
-
-
-Note: Current form only works with a webserver, except on firefox, compatability for local reading will be added.
-Testing is done with nginx as the static webserver.
+Used to Generate some basic html/javascript to read manga from a static website. The resulting files can be used in any sort of static web hosting provider or viewed locally from your computer.
 
 ### Usage
 
@@ -100,6 +95,67 @@ directory
 | -- 2.json
 ```
 
+#### --clean
+
+Removes all files that would've been generated with the given parameters as well as any empty folders left by the removals.
+
 #### --paging
 
-This will specify the use of pagedreader.js instead of reader.js which loads a new url for each page appending a ?page=# query to the end of the index page. This is slightly slower than the default which simply changes the main image's source but results in each page being recorded separately in your browser's history. 
+Use pagedreader.js instead of reader.js which loads a new url for each page appending a ?page=# query to the end of the index page. This is slightly slower than the default which simply changes the main image's source but results in each page being recorded separately in your browser's history. 
+
+#### --jsdir
+
+Specifies the location to put the javascript file relative to the main directory.
+
+i.e. to place the javascript file within a resources folder that is located within the parent of the chapter folder
+
+```
+python generate.py directory --jsdir ../res/js
+```
+
+#### --indexdir
+
+Shifts the locations of the index files so their relative position to the specified directory is the same as their relative position to the main directory without specifying this. In most cases the index files will be placed directly in the folder with the exception of the default `--index image` generation. Relative paths are relative to the main directory
+
+i.e. moving the index files to their parent with `python generate.py directory --indexdir ../`
+
+```
+parent
+|
+| -- directory
+|  |
+|  | -- chapter1
+|  |  |
+|  |  | -- page1.png
+|  |  | -- page2.png
+|  |
+|  | -- chapter2
+|  |  |
+|  |  | -- page1.png
+|  |  | -- page2.png
+|  |  | -- page3.png
+|
+| -- chapter1
+|  |
+|  | -- index.html
+| 
+| -- chapter2
+|  |
+|  | -- index.html
+```
+
+#### --home
+
+Specifies the directory to put the home file that contains an overview of all chapters. By default the file is named index.html and is placed in the main directory. Paths are relative to the main directory.
+
+#### --nohome
+
+Avoids generating the home file, chapters will still link to the home file directory.
+
+#### --chlist
+
+A file with the list of all chapters relative to the main directory or absolute paths. Can be used to specify a specific ordering of chapters.
+
+#### --usejson
+
+Generates a json file with all pages, and relative reference to previous and next file. Will prevent site from working locally without a server.
