@@ -1,27 +1,35 @@
 var currentpage = 0;
 var preload
-function loadJSON() {   
-    var xobj = new XMLHttpRequest();
-    xobj.overrideMimeType("application/json");
-    xobj.open('GET', chjson, true);
-    xobj.onreadystatechange = function () {
-    if (xobj.readyState == 4 && xobj.status == "200") {
-        data = JSON.parse(xobj.responseText);
-        chapters = data.pages;
-        document.getElementById('total').innerHTML = " "+data.pages.length
-        var pagenum = getParameterByName("page")
-        if(pagenum==="end"){
-        setpage(chapters.length)
-        }
-        else if(Number.isInteger(parseInt(pagenum))){
-        setpage(parseInt(pagenum)-1)
-        }
+function loadJSON() {
+    if(typeof chjson === 'undefined'){
+        setup()
     }
-    };
-    xobj.send(null);
+    else{
+        var xobj = new XMLHttpRequest();
+        xobj.overrideMimeType("application/json");
+        xobj.open('GET', chjson, true);
+        xobj.onreadystatechange = function () {
+        if (xobj.readyState == 4 && xobj.status == "200") {
+            data = JSON.parse(xobj.responseText);
+            setup()
+        }
+        };
+        xobj.send(null);
+    }
     document.getElementById('mainimage').addEventListener('load',function(){
         document.body.scrollTop = document.documentElement.scrollTop = 0;
     })
+}
+function setup(){
+    chapters = data.pages;
+    document.getElementById('total').innerHTML = " "+data.pages.length
+    var pagenum = getParameterByName("page")
+    if(pagenum==="end"){
+    setpage(chapters.length)
+    }
+    else if(Number.isInteger(parseInt(pagenum))){
+    setpage(parseInt(pagenum)-1)
+    }
 }
 function nextPage() {
     if(typeof chapters === 'undefined') return;

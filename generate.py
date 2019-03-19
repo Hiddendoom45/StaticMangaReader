@@ -40,9 +40,10 @@ parser.add_argument('--jsdir',help="The relative path to directory for the js fi
 parser.add_argument('--indexdir',help="The relative path to directory for the index fields relative to the main directory")
 parser.add_argument('--index',choices=['image','chapters','numbered'],default='image',help="Determines how the site pages are generated.")
 parser.add_argument('--home',default="",help="The home directory containing an overview of all chapters")
-parser.add_argument('--nohome',default=False,action='store_const',const=True,help="Prevents creation of home page for the manga")
-parser.add_argument('--clean',default=False,action='store_const',const=True,help="Removes files that would've been generated with the given parameters")
+parser.add_argument('--nohome',action='store_true',help="Prevents creation of home page for the manga")
+parser.add_argument('--clean',action='store_true',help="Removes files that would've been generated with the given parameters")
 parser.add_argument('--chlist',help="File containing the chapters")
+parser.add_argument('--usejson',action='store_true',help="generates json with pages")
 args = parser.parse_args()
 directory = args.directory[0]
 
@@ -134,13 +135,14 @@ for i in range(len(chapters)):
         data['previouschapter'] = "#"
     
     data['pages'] = [ {"page":p} for p in pages ]
-    jsfp = path.join(path.split(indexes[i])[0],path.relpath(chjson[i],path.split(indexes[i])[0]))
-    smkdirsf(jsfp)
-    if args.clean:
-        sremove(jsfp)
-    else:
-        with open(jsfp,"w") as jsonfile:
-            uniwrite(jsonfile,json.dumps(data))
+    if args.usejson:
+        jsfp = path.join(path.split(indexes[i])[0],path.relpath(chjson[i],path.split(indexes[i])[0]))
+        smkdirsf(jsfp)
+        if args.clean:
+            sremove(jsfp)
+        else:
+            with open(jsfp,"w") as jsonfile:
+                uniwrite(jsonfile,json.dumps(data))
     #generate html
     if args.clean:
         sremove(indexes[i])
@@ -153,7 +155,7 @@ for i in range(len(chapters)):
             html = html.replace("$IMAGE$",data['pages'][0]['page'])
             html = html.replace("$JS$",path.relpath(js,path.split(indexes[i])[0]))
             html = html.replace("$HIDDEN$", "hidden=\"true\"" if page else "")
-            html = html.replace("$CUSTOMJS$","chjson=\""+path.relpath(chjson[i],path.split(indexes[i])[0])+"\"")
+            html = html.replace("$CUSTOMJS$",("chjson=\""+path.relpath(chjson[i],path.split(indexes[i])[0])+"\"" if args.usejson else "data="+json.dumps(data)))
             html = html.replace("$HOME$",path.relpath(homefile,path.split(indexes[i])[0]))    
             uniwrite(htmlfile,html)
 

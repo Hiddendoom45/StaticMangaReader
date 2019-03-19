@@ -1,32 +1,40 @@
 //identical to the reader except forces page reload to a new url for each page, allows moving via history
 var currentpage = 0;
 var preload
-function loadJSON() {   
-	var xobj = new XMLHttpRequest();
-	xobj.overrideMimeType("application/json");
-	xobj.open('GET', chjson, true);
-	xobj.onreadystatechange = function () {
-		if (xobj.readyState == 4 && xobj.status == "200") {
-			data = JSON.parse(xobj.responseText);
-			chapters = data.pages;
-			document.getElementById('total').innerHTML = " "+data.pages.length
-			var pagenum = getParameterByName("page")
-			if(pagenum==="end"){
-				setpage(chapters.length)
+function loadJSON() {
+	if(typeof chjson === 'undefined') {
+		setup()
+	}
+	else {
+		var xobj = new XMLHttpRequest();
+		xobj.overrideMimeType("application/json");
+		xobj.open('GET', chjson, true);
+		xobj.onreadystatechange = function () {
+			if (xobj.readyState == 4 && xobj.status == "200") {
+				data = JSON.parse(xobj.responseText);
+				setup();
 			}
-			else if(Number.isInteger(parseInt(pagenum))){
-				setpage(parseInt(pagenum)-1);
-			}
-			else{
-				setpage(0)
-			}
-			document.getElementById('mainimage').hidden=false;
-			if(currentpage<chapters.length-2){
-				(new Image()).src = chapters[currentpage+1].page
-			}
-		}
-	};
+		};
+	}
 	xobj.send(null);  
+}
+function setup() {
+	chapters = data.pages;
+	document.getElementById('total').innerHTML = " "+data.pages.length
+	var pagenum = getParameterByName("page")
+	if(pagenum==="end"){
+		setpage(chapters.length);
+	}
+	else if(Number.isInteger(parseInt(pagenum))){
+		setpage(parseInt(pagenum)-1);
+	}
+	else{
+		setpage(0);
+	}
+	document.getElementById('mainimage').hidden=false;
+	if(currentpage<chapters.length-2){
+		(new Image()).src = chapters[currentpage+1].page
+	}
 }
 function nextPage() {
 	if(typeof chapters === 'undefined') return;
