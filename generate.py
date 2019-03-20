@@ -44,6 +44,7 @@ parser.add_argument('--nohome',action='store_true',help="Prevents creation of ho
 parser.add_argument('--clean',action='store_true',help="Removes files that would've been generated with the given parameters")
 parser.add_argument('--chlist',help="File containing the chapters")
 parser.add_argument('--usejson',action='store_true',help="generates json with pages")
+parser.add_argument('--long',action='store_true',help="Use long strip format to display chapters")
 args = parser.parse_args()
 directory = args.directory[0]
 
@@ -86,8 +87,9 @@ indexes= generator[1](directory,chapters)
 chjson= generator[2](directory,chapters,indexes)
 
 htmltemplatenginx = "<!DOCTYPE html><html><head><link rel=\"preload\" href=\"$JS$\" as=\"script\"><title>$TITLE$</title></head><body onload=\"loadJSON()\"><script>$CUSTOMJS$</script><script type=\"text/javascript\" src=\"$JS$\"></script><img id=\"mainimage\" href=\"#\" style=\"width:100%\"src=\"$IMAGE$\" onclick=\"nextPage()\" loadeddata=\"scrollTop()\" $HIDDEN$></img><div id=\"pagination\" style=\"position: relative\"><button style=\"float:left;width:20%;height:3em\"type=\"button\" onclick=\"previousPage()\">&lt;==</button><span style=\"margin:auto; position:absolute;left: 30%;width: 40%;text-align: center;\"> <input type=\"number\" name=\"pageField\" id=\"pageField\" style=\"text-align:left;width: 4em\" onchange=\"setpage(value-1)\" value=\"1\">/ <span id=\"total\"> </span></span><span style=\"margin:auto; position:absolute;left: 20%;width: 60%;text-align: center;top: 1em;word-wrap: break-word;\"><a href=\"$HOME$\">$TITLE$</a></span><button style=\"float:right;width:20%;height:3em\" type=\"button\" onclick=\"nextPage()\">==&gt;</button></div></body></html>"
+htmltemplatelong = "<!DOCTYPE html><html><head><title>$TITLE$</title></head><body><div id='mainpage'> $PAGES$</div><div id=\"pagination\" style=\"position: relative\"><button style=\"float:left;width:20%;height:3em\"type=\"button\" onclick=\"window.location='$PREV$'\">&lt;==</button><span style=\"margin:auto; position:absolute;left: 20%;width: 60%;text-align: center;top: 1em;word-wrap: break-word;\"><a href=\"$HOME$\">$TITLE$</a></span><button style=\"float:right;width:20%;height:3em\" type=\"button\" onclick=\"window.location='$NEXT$'\">==&gt;</button></div></body></html>"
 
-htmltemplate = htmltemplatenginx
+htmltemplate = htmltemplatenginx if not args.long else htmltemplatelong
 hometemplate = "<!DOCTYPE html><html><head> <meta charset=\"utf-8\"/> <title>$TITLE$</title></head><body> <ul> $CHAPLIST$ </ul></body></html>"
 
 #whether to use paged reader or non-paged reader
@@ -156,7 +158,10 @@ for i in range(len(chapters)):
             html = html.replace("$JS$",path.relpath(js,path.split(indexes[i])[0]))
             html = html.replace("$HIDDEN$", "hidden=\"true\"" if page else "")
             html = html.replace("$CUSTOMJS$",("chjson=\""+path.relpath(chjson[i],path.split(indexes[i])[0])+"\"" if args.usejson else "data="+json.dumps(data)))
-            html = html.replace("$HOME$",path.relpath(homefile,path.split(indexes[i])[0]) if args.nohome else homefile)    
+            html = html.replace("$HOME$",path.relpath(homefile,path.split(indexes[i])[0]) if args.nohome else homefile)
+            html = html.replace("$NEXT$",data['nextchapter'])
+            html = html.replace("$PREV$",data['previouschapter'])
+            html = html.replace("$PAGES$", "".join([ "<img src=\""+p['page']+"\"id=\""+".".join(p['page'].split(".")[:-1])+"\" style=\"width:100%\"></img>" for p in data['pages']]) )
             uniwrite(htmlfile,html)
 
 if not args.nohome:
