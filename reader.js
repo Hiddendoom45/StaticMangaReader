@@ -1,6 +1,9 @@
 var currentpage = 0;
 var preload;
 function loadJSON() {
+    document.getElementById('mainimage').addEventListener('load',function(){
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
+    });
     if(typeof chjson === 'undefined'){
         setup();
     }
@@ -27,9 +30,6 @@ function setup(){
     else if(Number.isInteger(parseInt(pagenum))){
         setpage(parseInt(pagenum)-1);
     }
-    document.getElementById('mainimage').addEventListener('load',function(){
-        document.body.scrollTop = document.documentElement.scrollTop = 0;
-    })
 }
 function nextPage() {
     if(typeof chapters === 'undefined') return;
