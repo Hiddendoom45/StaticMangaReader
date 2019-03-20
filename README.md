@@ -159,3 +159,7 @@ A file with the list of all chapters relative to the main directory or absolute 
 #### --usejson
 
 Generates a json file with all pages, and relative reference to previous and next file. Will prevent site from working locally without a server.
+
+#### --long
+
+Generates in long-strip format where all pages in a chapter are placed one after another in one long strip. Ignores the paging, and usejson arguments.
