@@ -6,6 +6,11 @@ import shutil
 import sys
 import io
 
+if sys.version_info < (3,0):
+    from urllib import pathname2url
+else:
+    from urllib.request import pathname2url
+
 #helper functions
 def dremove(dir):
     if len(os.listdir(dir)) == 0:
@@ -120,19 +125,19 @@ for i in range(len(chapters)):
     chdir = path.join(directory,chapters[i])
     pages = [ path.relpath(path.join(chdir,f),path.split(indexes[i])[0]) for f in os.listdir(chdir) if (path.isfile(path.join(chdir,f)) and not f.endswith("chapters.json") and not f.endswith("index.html"))]
     if sys.version_info < (3,0):
-        chap = "<li><a href=\"%s\">%s</a></li>" % (path.relpath(indexes[i],path.split(homefile)[0]),chapters[i])
+        chap = "<li><a href=\"%s\">%s</a></li>" % (pathname2url(path.relpath(indexes[i],path.split(homefile)[0])),chapters[i])
     else:
-        chap = "<li><a href=\"{}\">{}</a></li>".format(path.relpath(indexes[i],path.split(homefile)[0]),chapters[i])
+        chap = "<li><a href=\"{}\">{}</a></li>".format(pathname2url(path.relpath(indexes[i],path.split(homefile)[0])),chapters[i])
     chaplist.append(chap)
     #generate json
     data = {}
     if (i<len(chapters)-1):
-         data['nextchapter'] = path.relpath(indexes[i+1],path.split(indexes[i])[0])
+         data['nextchapter'] = pathname2url(path.relpath(indexes[i+1],path.split(indexes[i])[0]))
     else:
         data['nextchapter'] = "#"
     
     if (i>0):
-        data['previouschapter'] = path.relpath(indexes[i-1],path.split(indexes[i])[0])
+        data['previouschapter'] = pathname2url(path.relpath(indexes[i-1],path.split(indexes[i])[0]))
     else:
         data['previouschapter'] = "#"
     
@@ -158,7 +163,7 @@ for i in range(len(chapters)):
             html = html.replace("$JS$",path.relpath(js,path.split(indexes[i])[0]))
             html = html.replace("$HIDDEN$", "hidden=\"true\"" if page else "")
             html = html.replace("$CUSTOMJS$",("chjson=\""+path.relpath(chjson[i],path.split(indexes[i])[0])+"\"" if args.usejson else "data="+json.dumps(data)))
-            html = html.replace("$HOME$",path.relpath(homefile,path.split(indexes[i])[0]) if args.nohome else homefile)
+            html = html.replace("$HOME$",pathname2url(path.relpath(homefile,path.split(indexes[i])[0])))
             html = html.replace("$NEXT$",data['nextchapter'])
             html = html.replace("$PREV$",data['previouschapter'])
             html = html.replace("$PAGES$", "".join([ "<img src=\""+p['page']+"\"id=\""+".".join(p['page'].split(".")[:-1])+"\" style=\"width:100%\"></img>" for p in data['pages']]) )
