@@ -27,7 +27,7 @@ function setup(){
     if(pagenum==="end"){
         setpage(chapters.length);
     }
-    else if(Number.isInteger(parseInt(pagenum))){
+    else if(!isNaN(parseInt(pagenum))){
         setpage(parseInt(pagenum)-1);
     }
 }
