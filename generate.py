@@ -120,6 +120,20 @@ else:
 homefile = path.join( args.home if path.isabs(args.home) else path.join(directory,args.home),"index.html" if not args.nohome else "")
 chaplist = []
 
+#Stuff for long strip
+lpagetemplate = "<a href=\"$HREF$\"><img src=\"$SRC$\" id=\"$ID$\" style=\"width:100%\"></img></a>"
+def genimglist(pages,nextchapter):
+    l = []
+    for i in range(len(pages)):
+        tlpagetemplate = lpagetemplate.replace("$SRC$",pages[i]['page'])
+        tlpagetemplate = tlpagetemplate.replace("$ID$",".".join(pages[i]['page'].split(".")[:-1]))
+
+        if i == len(pages)-1:
+            l.append(tlpagetemplate.replace("$HREF$",nextchapter))
+        else:
+            l.append(tlpagetemplate.replace("$HREF$","#"+".".join(pages[i+1]['page'].split(".")[:-1])))
+    return l
+
 for i in range(len(chapters)):
     #directory containing the pages for all the chapters
     chdir = path.join(directory,chapters[i])
@@ -166,7 +180,7 @@ for i in range(len(chapters)):
             html = html.replace("$HOME$",pathname2url(path.relpath(homefile,path.split(indexes[i])[0])))
             html = html.replace("$NEXT$",data['nextchapter'])
             html = html.replace("$PREV$",data['previouschapter'])
-            html = html.replace("$PAGES$", "".join([ "<img src=\""+p['page']+"\"id=\""+".".join(p['page'].split(".")[:-1])+"\" style=\"width:100%\"></img>" for p in data['pages']]) )
+            html = html.replace("$PAGES$", "".join(genimglist(data['pages'],data['nextchapter'])) )
             uniwrite(htmlfile,html)
 
 if not args.nohome:
