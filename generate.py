@@ -112,10 +112,11 @@ else:
 
 smkdirs(jsdir)
 js = path.join(jsdir,path.split(reader)[1])
-if args.clean:
-    sremove(js)
-else:
-    shutil.copyfile(reader,js)
+if not args.long:
+    if args.clean:
+        sremove(js)
+    else:
+        shutil.copyfile(reader,js)
 
 homefile = path.join( args.home if path.isabs(args.home) else path.join(directory,args.home),"index.html" if not args.nohome else "")
 chaplist = []
