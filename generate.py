@@ -122,7 +122,7 @@ homefile = path.join( args.home if path.isabs(args.home) else path.join(director
 chaplist = []
 
 #Stuff for long strip
-lpagetemplate = "<a href=\"$HREF$\"><img src=\"$SRC$\" id=\"$ID$\" style=\"width:100%\"></img></a>"
+lpagetemplate = "<a href=\"$HREF$\"><img src=\"$SRC$\" id=\"$ID$\" style=\"width:100%; vertical-align:bottom\"></img></a>"
 def genimglist(pages,nextchapter):
     l = []
     for i in range(len(pages)):
