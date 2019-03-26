@@ -98,12 +98,15 @@ indexes= generator[1](directory,chapters)
 #json files
 chjson= generator[2](directory,chapters,indexes)
 
-htmltemplatenginx = "<!DOCTYPE html><html><head><link rel=\"preload\" href=\"$JS$\" as=\"script\"><title>$TITLE$</title></head><body onload=\"loadJSON()\"><script>$CUSTOMJS$</script><script type=\"text/javascript\" src=\"$JS$\"></script><img id=\"mainimage\" href=\"#\" style=\"width:100%\"src=\"$IMAGE$\" onclick=\"nextPage()\" loadeddata=\"scrollTop()\" $HIDDEN$></img><div id=\"pagination\" style=\"position: relative\"><button style=\"float:left;width:20%;height:3em\"type=\"button\" onclick=\"previousPage()\">&lt;==</button><span style=\"margin:auto; position:absolute;left: 30%;width: 40%;text-align: center;\"> <input type=\"number\" name=\"pageField\" id=\"pageField\" style=\"text-align:left;width: 4em\" onchange=\"setpage(value-1)\" value=\"1\">/ <span id=\"total\"> </span></span><span style=\"margin:auto; position:absolute;left: 20%;width: 60%;text-align: center;top: 1em;word-wrap: break-word;\"><a href=\"$HOME$\">$TITLE$</a></span><button style=\"float:right;width:20%;height:3em\" type=\"button\" onclick=\"nextPage()\">==&gt;</button></div></body></html>"
-htmltemplatelong = "<!DOCTYPE html><html><head><title>$TITLE$</title></head><body><div id='mainpage'> $PAGES$</div><div id=\"pagination\" style=\"position: relative\"><button style=\"float:left;width:20%;height:3em\"type=\"button\" onclick=\"window.location='$PREV$'\">&lt;==</button><span style=\"margin:auto; position:absolute;left: 20%;width: 60%;text-align: center;top: 1em;word-wrap: break-word;\"><a href=\"$HOME$\">$TITLE$</a></span><button style=\"float:right;width:20%;height:3em\" type=\"button\" onclick=\"window.location='$NEXT$'\">==&gt;</button></div></body></html>"
-htmlnojstemplate = "<!DOCTYPE html><html><head><title>$TITLE$</title><link rel=\"preload\" href=\"$PRELOAD$\" as=\"image\"></head><body><a href=\"$NEXT$\"><img id=\"mainimage\" style=\"width:100%\"src=\"$IMAGE$\"></img></a><div id=\"pagination\" style=\"position: relative\"><a href=\"$PREV$\"><button style=\"float:left;width:20%;height:3em\"type=\"button\">&lt;==</button></a><span style=\"margin:auto; position:absolute;left: 30%;width: 40%;text-align: center;\"> <span>$CURRENT$</span>/ <span>$TOTAL$</span></span> <span style=\"margin:auto; position:absolute;left: 20%;width: 60%;text-align: center;top: 1em;word-wrap: break-word;\"> <a href=\"$HOME$\">$TITLE$</a> </span><a href=\"$NEXT$\"><button style=\"float:right;width:20%;height:3em\" type=\"button\">==&gt;</button></a></div></body></html>"
-htmltemplate = (htmltemplatenginx if not args.nojs else htmlnojstemplate) if not args.long else htmltemplatelong
+#read from template file
+htmltemplatefile = ("template.html" if not args.nojs else "nojstemplate.html") if not args.long else "longtemplate.html"
+htmltemplatefile = path.join(path.split(path.realpath(__file__))[0],htmltemplatefile)
+with open(htmltemplatefile,'r') as htmlfile:
+    htmltemplate = htmlfile.read()
 
-hometemplate = "<!DOCTYPE html><html><head> <meta charset=\"utf-8\"/> <title>$TITLE$</title></head><body> <ul> $CHAPLIST$ </ul></body></html>"
+hometemplatefile = path.join(path.split(path.realpath(__file__))[0],"hometemplate.html")
+with open(hometemplatefile,'r') as htmlfile:
+    hometemplate = htmlfile.read()
 
 #whether to use paged reader or non-paged reader
 page = args.page
@@ -130,7 +133,7 @@ homefile = path.join( args.home if path.isabs(args.home) else path.join(director
 chaplist = []
 
 #Stuff for long strip
-lpagetemplate = "<a href=\"$HREF$\"><img src=\"$SRC$\" id=\"$ID$\" style=\"width:100%; vertical-align:bottom\"></img></a>"
+lpagetemplate = "<a href=\"$HREF$\"><img src=\"$SRC$\" id=\"$ID$\" style=\"width:100%;\"></img></a>"
 def genimglist(pages,nextchapter):
     l = []
     for i in range(len(pages)):
