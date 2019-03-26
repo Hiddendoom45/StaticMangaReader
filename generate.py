@@ -37,6 +37,12 @@ def smkdirs(dir):
             os.makedirs(dir)
     else:
         os.makedirs(jsdir,exist_ok=True)
+def urlpathrel(topath,currentpath):
+    return pathname2url(path.relpath(topath,path.split(currentpath)[0]))
+def pagepath(pagenum,index):
+    pagenum += 1
+    p =  path.join(path.split(index)[0],str(pagenum)+".html") if args.index == 'image' else ".".join(index.split(".")[:-1])+"_"+str(pagenum)+".html"
+    return p
 #setup parser and parse arguments
 parser = argparse.ArgumentParser(description='Generates a static manga site from some images')
 parser.add_argument('directory',nargs=1,help="The directory containing all the chapter folders")
@@ -50,6 +56,7 @@ parser.add_argument('--clean',action='store_true',help="Removes files that would
 parser.add_argument('--chlist',help="File containing the chapters")
 parser.add_argument('--usejson',action='store_true',help="generates json with pages")
 parser.add_argument('--long',action='store_true',help="Use long strip format to display chapters")
+parser.add_argument('--nojs',action='store_true',help="Do not use any javascript in the generated files")
 args = parser.parse_args()
 directory = args.directory[0]
 
@@ -93,8 +100,9 @@ chjson= generator[2](directory,chapters,indexes)
 
 htmltemplatenginx = "<!DOCTYPE html><html><head><link rel=\"preload\" href=\"$JS$\" as=\"script\"><title>$TITLE$</title></head><body onload=\"loadJSON()\"><script>$CUSTOMJS$</script><script type=\"text/javascript\" src=\"$JS$\"></script><img id=\"mainimage\" href=\"#\" style=\"width:100%\"src=\"$IMAGE$\" onclick=\"nextPage()\" loadeddata=\"scrollTop()\" $HIDDEN$></img><div id=\"pagination\" style=\"position: relative\"><button style=\"float:left;width:20%;height:3em\"type=\"button\" onclick=\"previousPage()\">&lt;==</button><span style=\"margin:auto; position:absolute;left: 30%;width: 40%;text-align: center;\"> <input type=\"number\" name=\"pageField\" id=\"pageField\" style=\"text-align:left;width: 4em\" onchange=\"setpage(value-1)\" value=\"1\">/ <span id=\"total\"> </span></span><span style=\"margin:auto; position:absolute;left: 20%;width: 60%;text-align: center;top: 1em;word-wrap: break-word;\"><a href=\"$HOME$\">$TITLE$</a></span><button style=\"float:right;width:20%;height:3em\" type=\"button\" onclick=\"nextPage()\">==&gt;</button></div></body></html>"
 htmltemplatelong = "<!DOCTYPE html><html><head><title>$TITLE$</title></head><body><div id='mainpage'> $PAGES$</div><div id=\"pagination\" style=\"position: relative\"><button style=\"float:left;width:20%;height:3em\"type=\"button\" onclick=\"window.location='$PREV$'\">&lt;==</button><span style=\"margin:auto; position:absolute;left: 20%;width: 60%;text-align: center;top: 1em;word-wrap: break-word;\"><a href=\"$HOME$\">$TITLE$</a></span><button style=\"float:right;width:20%;height:3em\" type=\"button\" onclick=\"window.location='$NEXT$'\">==&gt;</button></div></body></html>"
+htmlnojstemplate = "<!DOCTYPE html><html><head><title>$TITLE$</title></head><body><a href=\"$NEXT$\"><img id=\"mainimage\" style=\"width:100%\"src=\"$IMAGE$\"></img></a><div id=\"pagination\" style=\"position: relative\"><a href=\"$PREV$\"><button style=\"float:left;width:20%;height:3em\"type=\"button\">&lt;==</button></a><span style=\"margin:auto; position:absolute;left: 30%;width: 40%;text-align: center;\"> <span>$CURRENT$</span>/ <span>$TOTAL$</span></span> <span style=\"margin:auto; position:absolute;left: 20%;width: 60%;text-align: center;top: 1em;word-wrap: break-word;\"> <a href=\"$HOME$\">$TITLE$</a> </span><a href=\"$NEXT$\"><button style=\"float:right;width:20%;height:3em\" type=\"button\">==&gt;</button></a></div></body></html>"
+htmltemplate = (htmltemplatenginx if not args.nojs else htmlnojstemplate) if not args.long else htmltemplatelong
 
-htmltemplate = htmltemplatenginx if not args.long else htmltemplatelong
 hometemplate = "<!DOCTYPE html><html><head> <meta charset=\"utf-8\"/> <title>$TITLE$</title></head><body> <ul> $CHAPLIST$ </ul></body></html>"
 
 #whether to use paged reader or non-paged reader
@@ -112,7 +120,7 @@ else:
 
 smkdirs(jsdir)
 js = path.join(jsdir,path.split(reader)[1])
-if not args.long:
+if not args.long and not args.nojs:
     if args.clean:
         sremove(js)
     else:
@@ -135,29 +143,33 @@ def genimglist(pages,nextchapter):
             l.append(tlpagetemplate.replace("$HREF$","#"+".".join(pages[i+1]['page'].split(".")[:-1])))
     return l
 
+lastpage = None
+
 for i in range(len(chapters)):
     #directory containing the pages for all the chapters
     chdir = path.join(directory,chapters[i])
-    pages = [ path.relpath(path.join(chdir,f),path.split(indexes[i])[0]) for f in os.listdir(chdir) if (path.isfile(path.join(chdir,f)) and not f.endswith("chapters.json") and not f.endswith("index.html"))]
+    pages = [ path.relpath(path.join(chdir,f),path.split(indexes[i])[0]) for f in os.listdir(chdir) if (path.isfile(path.join(chdir,f)) and not f.endswith("chapters.json") and not f.endswith(".html"))]
     if sys.version_info < (3,0):
-        chap = "<li><a href=\"%s\">%s</a></li>" % (pathname2url(path.relpath(indexes[i],path.split(homefile)[0])),chapters[i])
+        chap = "<li><a href=\"%s\">%s</a></li>" % (urlpathrel(indexes[i],homefile),chapters[i])
     else:
-        chap = "<li><a href=\"{}\">{}</a></li>".format(pathname2url(path.relpath(indexes[i],path.split(homefile)[0])),chapters[i])
+        chap = "<li><a href=\"{}\">{}</a></li>".format(urlpathrel(indexes[i],homefile),chapters[i])
     chaplist.append(chap)
     #generate json
     data = {}
     if (i<len(chapters)-1):
-         data['nextchapter'] = pathname2url(path.relpath(indexes[i+1],path.split(indexes[i])[0]))
+         data['nextchapter'] =  urlpathrel(indexes[i+1],indexes[i])
     else:
         data['nextchapter'] = "#"
     
     if (i>0):
-        data['previouschapter'] = pathname2url(path.relpath(indexes[i-1],path.split(indexes[i])[0]))
+        data['previouschapter'] = urlpathrel(pagepath(lastpage,indexes[i-1]),indexes[i]) if args.nojs else urlpathrel(indexes[i-1],indexes[i])
     else:
         data['previouschapter'] = "#"
     
     data['pages'] = [ {"page":p} for p in pages ]
-    if args.usejson:
+    lastpage = len(data['pages']) - 1
+
+    if args.usejson and not args.nojs:
         jsfp = path.join(path.split(indexes[i])[0],path.relpath(chjson[i],path.split(indexes[i])[0]))
         smkdirsf(jsfp)
         if args.clean:
@@ -166,6 +178,33 @@ for i in range(len(chapters)):
             with open(jsfp,"w") as jsonfile:
                 uniwrite(jsonfile,json.dumps(data))
     #generate html
+    #nojs template
+    if args.nojs:
+        if args.clean:
+            for p in range(len(data['pages'])):
+                sremove(pagepath(p,indexes[i]))
+        else:
+            smkdirsf(indexes[i])
+            
+            for p in range(len(data['pages'])):
+                # use differnt join method if index form
+                ppath = pagepath(p,indexes[i])
+                with io.open(ppath,'w',encoding='utf-8') as htmlfile:
+                    html=htmltemplate
+                    #replace various part of template with generated strings
+                    html = html.replace("$TITLE$",chapters[i])
+                    html = html.replace("$IMAGE$",data['pages'][p]['page'])
+                    html = html.replace("$HOME$",urlpathrel(homefile,ppath))
+                    html = html.replace("$CURRENT$",str(p+1))
+                    html = html.replace("$NEXT$", urlpathrel(pagepath(p+1,indexes[i]),ppath)if p < len(data['pages'])-1 else data['nextchapter'])
+                    html = html.replace("$PREV$",data['previouschapter'] if p == 0 else urlpathrel(pagepath(p-1,indexes[i]),ppath))
+                    html = html.replace("$PAGES$", "".join(genimglist(data['pages'],data['nextchapter'])) )
+                    html = html.replace("$TOTAL$",str(len(pages)))
+                    html = html.replace("$CURRENT$","1")
+                    uniwrite(htmlfile,html)
+            data['nextchapter']=urlpathrel(pagepath(1,indexes[i]),ppath) if len(data['pages'])>1 else data['nextchapter']
+
+    #generic template
     if args.clean:
         sremove(indexes[i])
     else:
@@ -182,6 +221,8 @@ for i in range(len(chapters)):
             html = html.replace("$NEXT$",data['nextchapter'])
             html = html.replace("$PREV$",data['previouschapter'])
             html = html.replace("$PAGES$", "".join(genimglist(data['pages'],data['nextchapter'])) )
+            html = html.replace("$TOTAL$",str(len(pages)))
+            html = html.replace("$CURRENT$","1")
             uniwrite(htmlfile,html)
 
 if not args.nohome:
