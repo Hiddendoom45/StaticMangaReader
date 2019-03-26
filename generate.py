@@ -54,6 +54,7 @@ parser.add_argument('--home',default="",help="The home directory containing an o
 parser.add_argument('--nohome',action='store_true',help="Prevents creation of home page for the manga")
 parser.add_argument('--clean',action='store_true',help="Removes files that would've been generated with the given parameters")
 parser.add_argument('--chlist',help="File containing the chapters")
+parser.add_argument('--pagelist',help="File containing the pages within a chapter folder")
 parser.add_argument('--usejson',action='store_true',help="generates json with pages")
 parser.add_argument('--long',action='store_true',help="Use long strip format to display chapters")
 parser.add_argument('--nojs',action='store_true',help="Do not use any javascript in the generated files")
@@ -107,6 +108,10 @@ with open(htmltemplatefile,'r') as htmlfile:
 hometemplatefile = path.join(path.split(path.realpath(__file__))[0],"hometemplate.html")
 with open(hometemplatefile,'r') as htmlfile:
     hometemplate = htmlfile.read()
+
+nptemplatefile = path.join(path.split(path.realpath(__file__))[0],"nopagetemplate.html")
+with open(nptemplatefile,'r') as htmlfile:
+    nptemplate = htmlfile.read()
 
 #whether to use paged reader or non-paged reader
 page = args.page
@@ -171,7 +176,28 @@ for i in range(len(chapters)):
     
     data['pages'] = [ {"page":p} for p in pages ]
     lastpage = len(data['pages']) - 1
-
+    if len(data['pages'])==0:
+        if args.clean:
+            if args.index=="image" and inddir == directory:
+                try:
+                    os.remove(indexes[i])
+                except OSError:
+                    pass
+            else:
+                sremove(indexes[i])
+            
+        else:
+            smkdirsf(indexes[i])
+            with io.open(indexes[i],'w',encoding='utf-8') as htmlfile:
+                html = nptemplate
+                html = html.replace("$TITLE$", chapters[i])
+                html = html.replace("$HOME$", urlpathrel(homefile,indexes[i]))
+                html = html.replace("$NEXT$", data['nextchapter'])
+                html = html.replace("$PREV$", data['previouschapter']+("?page=end" if not args.nojs and not args.long else ""))
+                html = html.replace("$TOTAL$", "0")
+                html = html.replace("$CURRENT$", "0")
+                uniwrite(htmlfile,html)
+        continue
     if args.usejson and not args.nojs:
         jsfp = path.join(path.split(indexes[i])[0],path.relpath(chjson[i],path.split(indexes[i])[0]))
         smkdirsf(jsfp)
@@ -204,7 +230,6 @@ for i in range(len(chapters)):
                     html = html.replace("$PREV$",data['previouschapter'] if p == 0 else urlpathrel(pagepath(p-1,indexes[i]),ppath))
                     html = html.replace("$PAGES$", "".join(genimglist(data['pages'],data['nextchapter'])) )
                     html = html.replace("$TOTAL$",str(len(pages)))
-                    html = html.replace("$CURRENT$","1")
                     uniwrite(htmlfile,html)
             data['nextchapter']=urlpathrel(pagepath(1,indexes[i]),ppath) if len(data['pages'])>1 else data['nextchapter']
 
