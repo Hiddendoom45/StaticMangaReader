@@ -163,3 +163,8 @@ Generates a json file with all pages, and relative reference to previous and nex
 #### --long
 
 Generates in long-strip format where all pages in a chapter are placed one after another in one long strip. Ignores the paging, and usejson arguments.
+
+
+#### --nojs
+
+Generates the page with no javascript. This has no effect if the long argument is used and ignores the paging option.
