@@ -156,7 +156,11 @@ lastpage = None
 for i in range(len(chapters)):
     #directory containing the pages for all the chapters
     chdir = path.join(directory,chapters[i])
-    pages = [ path.relpath(path.join(chdir,f),path.split(indexes[i])[0]) for f in os.listdir(chdir) if (path.isfile(path.join(chdir,f)) and not f.endswith("chapters.json") and not f.endswith(".html"))]
+    if args.pagelist is None:
+        pages = [ path.relpath(path.join(chdir,f),path.split(indexes[i])[0]) for f in os.listdir(chdir) if (path.isfile(path.join(chdir,f)) and not f.endswith("chapters.json") and not f.endswith(".html"))]
+    else:
+        with open(path.join(chdir,args.pagelist),'r') as pagefile:
+            pages = pagefile.readlines()
     if sys.version_info < (3,0):
         chap = "<li><a href=\"%s\">%s</a></li>" % (urlpathrel(indexes[i],homefile),chapters[i])
     else:
@@ -170,7 +174,7 @@ for i in range(len(chapters)):
         data['nextchapter'] = "#"
     
     if (i>0):
-        data['previouschapter'] = urlpathrel(pagepath(lastpage,indexes[i-1]),indexes[i]) if args.nojs else urlpathrel(indexes[i-1],indexes[i])
+        data['previouschapter'] = urlpathrel(pagepath(lastpage,indexes[i-1]),indexes[i]) if args.nojs and not lastpage<=1 else urlpathrel(indexes[i-1],indexes[i])
     else:
         data['previouschapter'] = "#"
     
