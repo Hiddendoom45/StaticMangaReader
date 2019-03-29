@@ -154,7 +154,11 @@ Avoids generating the home file, chapters will still link to the home file direc
 
 #### --chlist
 
-A file with the list of all chapters relative to the main directory or absolute paths. Can be used to specify a specific ordering of chapters.
+A file with the list of all chapters relative to the main directory or absolute paths. Can be used to specify a specific ordering of chapters. Ignores folders that do not exist.
+
+#### --pagelist
+
+A file with a list of all pages relative to each chapter directory or the main directory. Can be used to specify page ordering. Ignores files that do not exist.
 
 #### --usejson
 

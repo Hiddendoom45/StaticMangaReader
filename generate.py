@@ -47,6 +47,9 @@ def pagepath(pagenum,index):
 def rfile(f):
     with open(f,'r') as ofile:
         return ofile.read()
+
+def resvabs(f):
+    return f if path.isabs(f) else path.join(directory,f)
 #setup parser and parse arguments
 parser = argparse.ArgumentParser(description='Generates a static manga site from some images')
 parser.add_argument('directory',nargs=1,help="The directory containing all the chapter folders")
@@ -67,7 +70,7 @@ directory = args.directory[0]
 
 #determine generators
 chdirectchild = lambda dir : [f for f in os.listdir(dir) if path.isdir(path.join(dir,f))]
-chfromlist = lambda dir: [ path.join(directory,f) if not path.isabs(f) else f for f in rfile(args.chlist if path.isabs(args.chlist) else path.join(directory,args.chlist)).splitlines()]
+chfromlist = lambda dir: [ resvabs(f) for f in rfile(resvabs(args.chlist)).splitlines() if path.exists(resvabs(f)) ]
 if args.chlist is not None:
     chgen = chfromlist
 else:
