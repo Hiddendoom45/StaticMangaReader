@@ -43,6 +43,10 @@ def pagepath(pagenum,index):
     pagenum += 1
     p =  path.join(path.split(index)[0],str(pagenum)+".html") if args.index == 'image' else ".".join(index.split(".")[:-1])+"_"+str(pagenum)+".html"
     return p
+
+def rfile(f):
+    with open(f,'r') as ofile:
+        return ofile.read()
 #setup parser and parse arguments
 parser = argparse.ArgumentParser(description='Generates a static manga site from some images')
 parser.add_argument('directory',nargs=1,help="The directory containing all the chapter folders")
@@ -63,7 +67,7 @@ directory = args.directory[0]
 
 #determine generators
 chdirectchild = lambda dir : [f for f in os.listdir(dir) if path.isdir(path.join(dir,f))]
-chfromlist = lambda dir: [ path.join(directory,f) if not f.startswith('/') else f for f in args.chlist.read().splitlines()]
+chfromlist = lambda dir: [ path.join(directory,f) if not path.isabs(f) else f for f in rfile(args.chlist if path.isabs(args.chlist) else path.join(directory,args.chlist)).splitlines()]
 if args.chlist is not None:
     chgen = chfromlist
 else:
@@ -157,14 +161,14 @@ for i in range(len(chapters)):
     #directory containing the pages for all the chapters
     chdir = path.join(directory,chapters[i])
     if args.pagelist is None:
-        pages = [ path.relpath(path.join(chdir,f),path.split(indexes[i])[0]) for f in os.listdir(chdir) if (path.isfile(path.join(chdir,f)) and not f.endswith("chapters.json") and not f.endswith(".html"))]
+        pages = [ path.relpath(path.join(chdir,f),path.split(indexes[i])[0]) for f in os.listdir(chdir) if (path.isfile(path.join(chdir,f)) and not f.endswith(".json") and not f.endswith(".html"))]
     else:
         with open(path.join(chdir,args.pagelist),'r') as pagefile:
             pages = pagefile.readlines()
     if sys.version_info < (3,0):
-        chap = "<li><a href=\"%s\">%s</a></li>" % (urlpathrel(indexes[i],homefile),chapters[i])
+        chap = "<li><a href=\"%s\">%s</a></li>" % (urlpathrel(indexes[i],homefile),path.split(chapters[i])[1])
     else:
-        chap = "<li><a href=\"{}\">{}</a></li>".format(urlpathrel(indexes[i],homefile),chapters[i])
+        chap = "<li><a href=\"{}\">{}</a></li>".format(urlpathrel(indexes[i],homefile),path.split(chapters[i])[1])
     chaplist.append(chap)
     #generate json
     data = {}
@@ -194,7 +198,7 @@ for i in range(len(chapters)):
             smkdirsf(indexes[i])
             with io.open(indexes[i],'w',encoding='utf-8') as htmlfile:
                 html = nptemplate
-                html = html.replace("$TITLE$", chapters[i])
+                html = html.replace("$TITLE$", path.split(chapters[i])[1])
                 html = html.replace("$HOME$", urlpathrel(homefile,indexes[i]))
                 html = html.replace("$NEXT$", data['nextchapter'])
                 html = html.replace("$PREV$", data['previouschapter']+("?page=end" if not args.nojs and not args.long else ""))
@@ -225,7 +229,7 @@ for i in range(len(chapters)):
                 with io.open(ppath,'w',encoding='utf-8') as htmlfile:
                     html=htmltemplate
                     #replace various part of template with generated strings
-                    html = html.replace("$TITLE$",chapters[i])
+                    html = html.replace("$TITLE$",path.split(chapters[i])[1])
                     html = html.replace("$IMAGE$",data['pages'][p]['page'])
                     html = html.replace("$PRELOAD$",data['pages'][p+1]['page'] if p < len(data['pages'])-1 else "#")
                     html = html.replace("$HOME$",urlpathrel(homefile,ppath))
@@ -245,7 +249,7 @@ for i in range(len(chapters)):
         with io.open(indexes[i],"w",encoding='utf-8') as htmlfile:
             html=htmltemplate
             #replace various part of template with generated strings
-            html = html.replace("$TITLE$",chapters[i])
+            html = html.replace("$TITLE$",path.split(chapters[i])[1])
             html = html.replace("$IMAGE$",data['pages'][0]['page'])
             html = html.replace("$JS$",path.relpath(js,path.split(indexes[i])[0]))
             html = html.replace("$HIDDEN$", "hidden=\"true\"" if page else "")
