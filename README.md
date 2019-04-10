@@ -99,7 +99,7 @@ directory
 
 Removes all files that would've been generated with the given parameters as well as any empty folders left by the removals.
 
-#### --nopage
+#### --no-page
 
 Use reader.js instead of pagedreader.js results in only one history entry per chapter instead of one per page.
 
