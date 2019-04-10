@@ -1,5 +1,5 @@
 var currentpage = 0;
-var preload;
+var preload=new Image();
 function loadJSON() {
     document.getElementById('mainimage').addEventListener('load',function(){
         document.body.scrollTop = document.documentElement.scrollTop = 0;
@@ -38,7 +38,6 @@ function nextPage() {
     }
     else{
         setpage(++currentpage);
-        preload = ((new Image()).src = chapters[currentpage].page);
     }
 }
 function previousPage() {
@@ -56,8 +55,8 @@ function setpage(page) {
     if(page>=chapters.length) page = chapters.length-1;
     currentpage = page;
     document.getElementById('mainimage').src=chapters[page].page;
-    
     document.getElementById('pageField').value=currentpage+1;
+    if(currentpage<chapters.length-1)preload.src = chapters[currentpage+1].page;
 }
 function getParameterByName(name, url) {
     if (!url) url = window.location.href;
