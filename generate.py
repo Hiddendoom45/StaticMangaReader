@@ -53,7 +53,7 @@ def resvabs(f):
 #setup parser and parse arguments
 parser = argparse.ArgumentParser(description='Generates a static manga site from some images')
 parser.add_argument('directory',nargs=1,help="The directory containing all the chapter folders")
-parser.add_argument('--page','-p',default=False,action='store_const',const=True,help="Uses pagination such that each page generates a new url")
+parser.add_argument('--no-page','-p',action='store_false',dest='page',help="Do not use pagination such that each page generates a new url")
 parser.add_argument('--jsdir',help="The relative path to directory for the js file relative to the main directory")
 parser.add_argument('--indexdir',help="The relative path to directory for the index fields relative to the main directory")
 parser.add_argument('--index',choices=['image','chapters','numbered'],default='image',help="Determines how the site pages are generated.")
@@ -255,7 +255,7 @@ for i in range(len(chapters)):
             html = html.replace("$TITLE$",path.split(chapters[i])[1])
             html = html.replace("$IMAGE$",data['pages'][0]['page'])
             html = html.replace("$JS$",path.relpath(js,path.split(indexes[i])[0]))
-            html = html.replace("$HIDDEN$", "hidden=\"true\"" if page else "")
+            #html = html.replace("$HIDDEN$", "hidden=\"true\"" if page else "")
             html = html.replace("$CUSTOMJS$",("chjson=\""+path.relpath(chjson[i],path.split(indexes[i])[0])+"\"" if args.usejson else "data="+json.dumps(data)))
             html = html.replace("$HOME$",pathname2url(path.relpath(homefile,path.split(indexes[i])[0])))
             html = html.replace("$NEXT$",data['nextchapter'])

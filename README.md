@@ -99,9 +99,9 @@ directory
 
 Removes all files that would've been generated with the given parameters as well as any empty folders left by the removals.
 
-#### --paging
+#### --nopage
 
-Use pagedreader.js instead of reader.js which loads a new url for each page appending a ?page=# query to the end of the index page. This is slightly slower than the default which simply changes the main image's source but results in each page being recorded separately in your browser's history. 
+Use reader.js instead of pagedreader.js results in only one history entry per chapter instead of one per page.
 
 #### --jsdir
 
