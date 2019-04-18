@@ -43,7 +43,6 @@ directory
 |  | -- page1.png
 |  | -- page2.png
 |  | -- index.html
-|  | -- chapters.json
 |
 | -- chapter2
 |  |
@@ -51,7 +50,6 @@ directory
 |  | -- page2.png
 |  | -- page3.png
 |  | -- index.html
-|  | -- chapters.json
 ```
 
 Chapters will name the index pages with the same names as each chapter folder 
@@ -64,15 +62,14 @@ directory
 |  | -- page2.png
 |
 | -- chapter1.html
-| -- chapter1.json
 |
 | -- chapter2
 |  |
 |  | -- page1.png
 |  | -- page2.png
 |  | -- page3.png
+|
 | -- chapter2.html
-| -- chapter2.json
 ```
 Numbered will use the occurance number to name the index files instead
 ```
@@ -84,15 +81,14 @@ directory
 |  | -- page2.png
 |
 | -- 1.html
-| -- 1.json
 |
 | -- chapter2
 |  |
 |  | -- page1.png
 |  | -- page2.png
 |  | -- page3.png
+|
 | -- 2.html
-| -- 2.json
 ```
 
 #### --clean
