@@ -39,7 +39,7 @@ function setup(){
 function nextPage() {
     if(typeof chapters === 'undefined') return;
     if(currentpage>=chapters.length-1){
-       if(data.nextchapter!=='') window.location = data.nextchapter;
+       if(data.nextchapter!=='#') window.location = data.nextchapter;
     }
     else{
         setpage(++currentpage);
@@ -51,7 +51,7 @@ function previousPage() {
         setpage(--currentpage);
     }
     else{
-        if(data.previouschapter!=='') window.location = data.previouschapter+"?page=end";
+        if(data.previouschapter!=='#') window.location = data.previouschapter+"?page=end";
     }
 }
 function setpage(page,ishistory=false) {
