@@ -2,6 +2,8 @@
 
 Used to Generate some basic html/javascript to read manga from a static website. The resulting files can be used in any sort of static web hosting provider or viewed locally from your computer.
 
+The javascript generated is designed to be compatabile with older browsers (tested with a 2013 browser).
+
 ### Usage
 
 The main script is a python program that generates the pages needed to view the images of downloaded manga. Compatible with both python2 and python3. 
