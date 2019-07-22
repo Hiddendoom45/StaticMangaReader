@@ -2,13 +2,13 @@
 var currentpage = 0;
 var preload = new Image();
 function loadJSON() {
-    document.getElementById('mainimage').addEventListener('load',() => {
+    document.getElementById('mainimage').addEventListener('load', function() {
         document.body.scrollTop = document.documentElement.scrollTop = 0;
     });
-    window.addEventListener('popstate',(event) => {
+    window.onpopstate = function(event) {
         if(event.state==null) setpage(0,true)
         else setpage(event.state.page,true)
-    })
+    }
     if(typeof chjson === 'undefined'){
         setup();
     }
@@ -42,19 +42,19 @@ function nextPage() {
        if(data.nextchapter!=='#') window.location = data.nextchapter;
     }
     else{
-        setpage(++currentpage);
+        setpage(++currentpage, false);
     }
 }
 function previousPage() {
     if(typeof chapters === 'undefined') return;
     if(currentpage>0){
-        setpage(--currentpage);
+        setpage(--currentpage, false);
     }
     else{
         if(data.previouschapter!=='#') window.location = data.previouschapter+"?page=end";
     }
 }
-function setpage(page,ishistory=false) {
+function setpage(page, ishistory) {
     if(typeof chapters === 'undefined') return;
     if(page<0) page = 0;
     if(page>=chapters.length) page = chapters.length-1;
