@@ -43,7 +43,11 @@ def pagepath(pagenum,index):
     pagenum += 1
     p =  path.join(path.split(index)[0],str(pagenum)+".html") if args.index == 'image' else ".".join(index.split(".")[:-1])+"_"+str(pagenum)+".html"
     return p
-
+def repext(path):
+    if path.split(".")[-1:][0] in extmap:
+        path = ".".join(path.split(".")[:-1])+"."+extmap[path.split(".")[-1:][0]]
+    
+    return path
 def rfile(f):
     with open(f,'r') as ofile:
         return ofile.read()
@@ -65,6 +69,7 @@ parser.add_argument('--pagelist',help="File containing the pages within a chapte
 parser.add_argument('--usejson',action='store_true',help="generates json with pages")
 parser.add_argument('--long',action='store_true',help="Use long strip format to display chapters")
 parser.add_argument('--nojs',action='store_true',help="Do not use any javascript in the generated files")
+parser.add_argument("--rewritext",action='append',help="Replaces the first extension with the second extension")
 args = parser.parse_args()
 directory = args.directory[0]
 
@@ -85,6 +90,13 @@ if sys.version_info < (3,0):
         os.makedirs(inddir)
 else:
     os.makedirs(inddir,exist_ok=True)
+
+extmap = {}
+if args.rewritext is not None:
+    for ext in args.rewritext:
+        extmap[ext.split(",")[0]] = ext.split(",")[1]
+
+
 indwithimg = lambda dir,ch : [path.join(inddir,c,"index.html") for c in ch]
 indseparate = lambda dir,ch : [path.join(inddir,c+".html") for c in ch]
 indnumbered = lambda dir,ch : [path.join(inddir,str(i+1)+".html") for i in range(len(ch))]
@@ -164,7 +176,7 @@ for i in range(len(chapters)):
     #directory containing the pages for all the chapters
     chdir = path.join(directory,chapters[i])
     if args.pagelist is None:
-        pages = [ path.relpath(path.join(chdir,f),path.split(indexes[i])[0]) for f in os.listdir(chdir) if (path.isfile(path.join(chdir,f)) and not f.endswith(".json") and not f.endswith(".html"))]
+        pages = [ repext(path.relpath(path.join(chdir,f),path.split(indexes[i])[0])) for f in os.listdir(chdir) if (path.isfile(path.join(chdir,f)) and not f.endswith(".json") and not f.endswith(".html"))]
     else:
         with open(path.join(chdir,args.pagelist),'r') as pagefile:
             pages = pagefile.readlines()
