@@ -170,3 +170,7 @@ Generates in long-strip format where all pages in a chapter are placed one after
 #### --nojs
 
 Generates the page with no javascript. This has no effect if the long argument is used and ignores the paging option.
+
+#### --chext
+
+Changes the extension of indexed images, useful if images are stored on the server in compressed form but requested as images. i.e. `--chext "lep,jpg"` converts images stored in the lepton format to reference the .jpg url.
