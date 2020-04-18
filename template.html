@@ -10,7 +10,8 @@
 
 <img id="mainimage" href="#" style="width:100%"src="$IMAGE$" onclick="nextPage()" loadeddata="scrollTop()" $HIDDEN$></img>
 <div id = "pagination" style="position: relative">
-	<button style="float:left;width:20%;height:3em"type="button" onclick="previousPage()">&lt;==</button>
+	<button style="float:left;width:10%;height:3em"type="button" onclick="window.location='$PREVCH$'">&lt;&lt;</button>
+	<button style="float:left;width:10%;height:3em"type="button" onclick="previousPage()">&lt;</button>
 	<span style="margin:auto; position:absolute;left: 30%;width: 40%;text-align: center;"> 
 		<input type="number" name="pageField" id="pageField" style="text-align:left;width: 4em" onchange="setpage(value-1)" value="1">
 		/ 
@@ -19,7 +20,8 @@
 	<span style="margin:auto; position:absolute;left: 20%;width: 60%;text-align: center;top: 1em;word-wrap: break-word;">
 		<a href = "$HOME$">$TITLE$</a>
 	</span>
-	<button style="float:right;width:20%;height:3em" type="button" onclick="nextPage()">==&gt;</button>
+	<button style="float:right;width:10%;height:3em" type="button" onclick="window.location='$NEXTCH$'">&gt;&gt;</button>
+	<button style="float:right;width:10%;height:3em" type="button" onclick="nextPage()">&gt;</button>
 </div>
 </body>
 </html>

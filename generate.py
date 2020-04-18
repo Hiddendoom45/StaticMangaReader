@@ -117,9 +117,9 @@ elif args.index=='numbered':
 # list of chapter directories
 chapters = generator[0](directory)
 #list of index files
-indexes= generator[1](directory,chapters)
+indexes = generator[1](directory,chapters)
 #json files
-chjson= generator[2](directory,chapters,indexes)
+chjson = generator[2](directory,chapters,indexes)
 
 #read from template file
 htmltemplatefile = ("template.html" if not args.nojs else "nojstemplate.html") if not args.long else "longtemplate.html"
@@ -218,8 +218,8 @@ for i in range(len(chapters)):
                 html = nptemplate
                 html = html.replace("$TITLE$", path.split(chapters[i])[1])
                 html = html.replace("$HOME$", urlpathrel(homefile,indexes[i]))
-                html = html.replace("$NEXT$", data['nextchapter'])
-                html = html.replace("$PREV$", data['previouschapter']+("?page=end" if not args.nojs and not args.long else ""))
+                html = html.replace("$NEXTCH$", data['nextchapter'])
+                html = html.replace("$PREVCH$", data['previouschapter']+("?page=end" if not args.nojs and not args.long else ""))
                 html = html.replace("$TOTAL$", "0")
                 html = html.replace("$CURRENT$", "0")
                 uniwrite(htmlfile,html)
@@ -238,14 +238,15 @@ for i in range(len(chapters)):
         if args.clean:
             for p in range(len(data['pages'])):
                 sremove(pagepath(p,indexes[i]))
+            sremove(indexes[i])
         else:
             smkdirsf(indexes[i])
             
             for p in range(len(data['pages'])):
                 # use differnt join method if index form
                 ppath = pagepath(p,indexes[i])
+                html=htmltemplate
                 with io.open(ppath,'w',encoding='utf-8') as htmlfile:
-                    html=htmltemplate
                     #replace various part of template with generated strings
                     html = html.replace("$TITLE$",path.split(chapters[i])[1])
                     html = html.replace("$IMAGE$",data['pages'][p]['page'])
@@ -253,32 +254,37 @@ for i in range(len(chapters)):
                     html = html.replace("$HOME$",urlpathrel(homefile,ppath))
                     html = html.replace("$CURRENT$",str(p+1))
                     html = html.replace("$NEXT$", urlpathrel(pagepath(p+1,indexes[i]),ppath)if p < len(data['pages'])-1 else data['nextchapter'])
+                    html = html.replace("$NEXTCH$",data['nextchapter'])
                     html = html.replace("$PREV$",data['previouschapter'] if p == 0 else urlpathrel(pagepath(p-1,indexes[i]),ppath))
+                    html = html.replace("$PREVCH$",data['previouschapter'])
                     html = html.replace("$PAGES$", "".join(genimglist(data['pages'],data['nextchapter'])) )
                     html = html.replace("$TOTAL$",str(len(pages)))
                     uniwrite(htmlfile,html)
+                if p == 0:
+                    with io.open(indexes[i],"w",encoding='utf-8') as htmlfile:
+                        uniwrite(htmlfile,html)
             data['nextchapter']=urlpathrel(pagepath(1,indexes[i]),ppath) if len(data['pages'])>1 else data['nextchapter']
-
-    #generic template
-    if args.clean:
-        sremove(indexes[i])
     else:
-        smkdirsf(indexes[i])
-        with io.open(indexes[i],"w",encoding='utf-8') as htmlfile:
-            html=htmltemplate
-            #replace various part of template with generated strings
-            html = html.replace("$TITLE$",path.split(chapters[i])[1])
-            html = html.replace("$IMAGE$",data['pages'][0]['page'])
-            html = html.replace("$JS$",path.relpath(js,path.split(indexes[i])[0]))
-            #html = html.replace("$HIDDEN$", "hidden=\"true\"" if page else "")
-            html = html.replace("$CUSTOMJS$",("chjson=\""+path.relpath(chjson[i],path.split(indexes[i])[0])+"\"" if args.usejson else "data="+json.dumps(data)))
-            html = html.replace("$HOME$",pathname2url(path.relpath(homefile,path.split(indexes[i])[0])))
-            html = html.replace("$NEXT$",data['nextchapter'])
-            html = html.replace("$PREV$",data['previouschapter'])
-            html = html.replace("$PAGES$", "".join(genimglist(data['pages'],data['nextchapter'])) )
-            html = html.replace("$TOTAL$",str(len(pages)))
-            html = html.replace("$CURRENT$","1")
-            uniwrite(htmlfile,html)
+        #generic template
+        if args.clean:
+            sremove(indexes[i])
+        else:
+            smkdirsf(indexes[i])
+            with io.open(indexes[i],"w",encoding='utf-8') as htmlfile:
+                html=htmltemplate
+                #replace various part of template with generated strings
+                html = html.replace("$TITLE$",path.split(chapters[i])[1])
+                html = html.replace("$IMAGE$",data['pages'][0]['page'])
+                html = html.replace("$JS$",path.relpath(js,path.split(indexes[i])[0]))
+                #html = html.replace("$HIDDEN$", "hidden=\"true\"" if page else "")
+                html = html.replace("$CUSTOMJS$",("chjson=\""+path.relpath(chjson[i],path.split(indexes[i])[0])+"\"" if args.usejson else "data="+json.dumps(data)))
+                html = html.replace("$HOME$",pathname2url(path.relpath(homefile,path.split(indexes[i])[0])))
+                html = html.replace("$NEXTCH$",data['nextchapter'])
+                html = html.replace("$PREVCH$",data['previouschapter'])
+                html = html.replace("$PAGES$", "".join(genimglist(data['pages'],data['nextchapter'])) )
+                html = html.replace("$TOTAL$",str(len(pages)))
+                html = html.replace("$CURRENT$","1")
+                uniwrite(htmlfile,html)
 
 if not args.nohome:
     if args.clean:
