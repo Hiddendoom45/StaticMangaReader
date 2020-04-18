@@ -24,8 +24,11 @@ def sremove(f):
         pass 
 #file opened with encode unicode
 def uniwrite(f,str):
-    if sys.version_info < (3,0):
-        f.write(unicode(str,'utf-8'))
+    if not isinstance(str,type(u'')):
+        if sys.version_info < (3,0):
+            f.write(unicode(str,'utf-8'))
+        else:
+            f.write(str)
     else:
         f.write(str)
 def smkdirsf(f):
@@ -181,9 +184,9 @@ for i in range(len(chapters)):
         with open(path.join(chdir,args.pagelist),'r') as pagefile:
             pages = pagefile.readlines()
     if sys.version_info < (3,0):
-        chap = "<li><a href=\"%s\">%s</a></li>" % (urlpathrel(indexes[i],homefile),path.split(chapters[i])[1])
+        chap = "<li><a href=\"%s\">%s</a></li>" % (urlpathrel(indexes[i],homefile),unicode(path.split(chapters[i])[1],'utf-8'))
     else:
-        chap = "<li><a href=\"{}\">{}</a></li>".format(urlpathrel(indexes[i],homefile),path.split(chapters[i])[1])
+        chap = "<li><a href=\"{}\">{}</a></li>".format(urlpathrel(indexes[i],homefile),unicode(path.split(chapters[i])[1],'utf-8'))
     chaplist.append(chap)
     #generate json
     data = {}
