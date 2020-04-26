@@ -186,7 +186,7 @@ for i in range(len(chapters)):
     if sys.version_info < (3,0):
         chap = "<li><a href=\"%s\">%s</a></li>" % (urlpathrel(indexes[i],homefile),unicode(path.split(chapters[i])[1],'utf-8'))
     else:
-        chap = "<li><a href=\"{}\">{}</a></li>".format(urlpathrel(indexes[i],homefile),unicode(path.split(chapters[i])[1],'utf-8'))
+        chap = "<li><a href=\"{}\">{}</a></li>".format(urlpathrel(indexes[i],homefile),path.split(chapters[i])[1])
     chaplist.append(chap)
     #generate json
     data = {}
