@@ -144,7 +144,7 @@ else:
     reader = "reader.js"
 reader = path.join(path.split(path.realpath(__file__))[0],reader)
 if args.jsdir is not None:
-    jsdir = args.jsdir if path.isabs(jsdir) else path.join(directory,args.jsdir)
+    jsdir = args.jsdir if path.isabs(args.jsdir) else path.join(directory,args.jsdir)
 else:
     jsdir = directory
 
