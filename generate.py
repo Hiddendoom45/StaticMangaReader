@@ -180,9 +180,11 @@ for i in range(len(chapters)):
     chdir = path.join(directory,chapters[i])
     if args.pagelist is None:
         pages = [ repext(path.relpath(path.join(chdir,f),path.split(indexes[i])[0])) for f in os.listdir(chdir) if (path.isfile(path.join(chdir,f)) and not f.endswith(".json") and not f.endswith(".html"))]
+        list.sort(pages)
     else:
         with open(path.join(chdir,args.pagelist),'r') as pagefile:
             pages = pagefile.readlines()
+    
     if sys.version_info < (3,0):
         chap = "<li><a href=\"%s\">%s</a></li>" % (urlpathrel(indexes[i],homefile),unicode(path.split(chapters[i])[1],'utf-8'))
     else:
