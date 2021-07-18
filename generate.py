@@ -72,15 +72,20 @@ parser.add_argument('--pagelist',help="File containing the pages within a chapte
 parser.add_argument('--usejson',action='store_true',help="generates json with pages")
 parser.add_argument('--long',action='store_true',help="Use long strip format to display chapters")
 parser.add_argument('--nojs',action='store_true',help="Do not use any javascript in the generated files")
-parser.add_argument("--chext",action='append',help="Replaces the first extension with the second extension")
+parser.add_argument('--chext',action='append',help="Replaces the first extension with the second extension")
+parser.add_argument('--oneshot', action='store_true',help="Generates the index for one chapter where the given directory contains the pages of the oneshot manga")
 args = parser.parse_args()
 directory = args.directory[0]
 
 #determine generators
 chdirectchild = lambda dir : [f for f in os.listdir(dir) if path.isdir(path.join(dir,f))]
 chfromlist = lambda dir: [ resvabs(f) for f in rfile(resvabs(args.chlist)).splitlines() if path.exists(resvabs(f)) ]
+choneshot = lambda dir: [dir]
 if args.chlist is not None:
     chgen = chfromlist
+elif args.oneshot:
+    chgen = choneshot
+    args.nohome = True
 else:
     chgen = chdirectchild
 

@@ -174,3 +174,15 @@ Generates the page with no javascript. This has no effect if the long argument i
 #### --chext
 
 Changes the extension of indexed images, useful if images are stored on the server in compressed form but requested as images. i.e. `--chext "lep,jpg"` converts images stored in the lepton format to reference the .jpg url.
+
+
+#### --oneshot
+
+Use for oneshot mangas/single chapters. The directory parameter specifies the location of the chapter's pages rather than the directory containing the chapter folders. 
+
+```
+directory
+|
+| -- page1.png
+| -- page2.png
+```
