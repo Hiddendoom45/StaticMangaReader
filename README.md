@@ -34,9 +34,9 @@ Chapters will be chained together based on the lexical ordering of the chapter f
 
 #### --index [image,chapters,numbered] 
 
-Specifies the way in which the index pages will be generated. Default is index.
+Specifies the way in which the index pages will be generated. Default is image.
 
-Index genrates the json file with the page names and the index files in the same directory as the images.
+Image genrates the json file with the page names and the index files in the same directory as the images.
 ```
 directory
 |
