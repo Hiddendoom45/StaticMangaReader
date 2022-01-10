@@ -184,7 +184,7 @@ for i in range(len(chapters)):
     #directory containing the pages for all the chapters
     chdir = path.join(directory,chapters[i])
     if args.pagelist is None:
-        pages = [ repext(path.relpath(path.join(chdir,f),path.split(indexes[i])[0])) for f in os.listdir(chdir) if (path.isfile(path.join(chdir,f)) and not f.endswith(".json") and not f.endswith(".html"))]
+        pages = [ repext(path.relpath(path.join(chdir,f),path.split(indexes[i])[0])) for f in os.listdir(chdir) if (path.isfile(path.join(chdir,f)) and not f.endswith(".json") and not f.endswith(".html") and not f.endswith(".js"))]
         list.sort(pages)
     else:
         with open(path.join(chdir,args.pagelist),'r') as pagefile:
